@@ -1,0 +1,198 @@
+echo "# Sta616_Homework_4" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://github.com/nathantum/Sta616_Homework_4.git
+git push -u origin master
+
+*Nathan K Tum;
+*Homework 4;
+*Due Friday, March 4;
+ods html close;
+*close previous;
+ods html; 
+*open new;
+DATA BLOOD;
+   INPUT ID GROUP $ WBC RBC @@;
+DATALINES;
+1 A  8000 4.5  1 A  8200 4.8  1 A  8400 5.2
+1 A  8300 5.3  1 A  8400 5.5
+2 A  7800 4.9  2 A  7900 5.0
+3 B  8200 5.4  3 B  8300 5.4  3 B  8300 5.2
+3 B  8200 4.9  3 B  8300 5.0
+4 B  8600 5.5
+5 A  7900 5.2  5 A  8000 5.2  5 A  8200 5.4 
+5 A  8400 5.5
+6 B  8300 6.1
+;
+TITLE "BLOOD DATA SET";
+PROC PRINT DATA = BLOOD;
+RUN;
+TITLE "BLOOD SORTED DATA SET";
+PROC SORT DATA =BLOOD OUT =BLOOD;
+BY ID GROUP;
+RUN;
+
+*PART 1;
+
+*TWO STEP DATA STEP;
+PROC SORT DATA = BLOOD OUT =DIFFWBCRBC;
+BY  ID GROUP;
+RUN;
+
+DATA DIFFWBCRBC1;
+SET DIFFWBCRBC;
+BY ID;
+if first.id then numobs=0;
+ numobs+1;
+IF FIRST.ID = LAST.ID THEN DELETE;
+difwbc = WBC-LAG(WBC);
+difrbc = RBC-LAG(RBC);
+IF LAST.ID THEN OUTPUT;
+KEEP ID GROUP  numobs DIFWBC DIFRBC;
+RUN;
+
+TITLE'PART ONE A';
+PROC PRINT DATA = DIFFWBCRBC1;
+RUN;
+
+
+*TO BE COMPLETED LATER;
+DATA DIFFWBCRBC2 ;
+SET DIFFWBCRBC;
+place = _N_;
+lad_id = LAG(place);
+difwbc = WBC-LAG(WBC);
+difrbc = RBC-LAG(RBC);
+IF first.lad_id then delete;
+KEEP lad_id difwbc difrbc;
+RUN;
+TITLE'PART ONE B';
+PROC PRINT DATA = DIFFWBCRBC2 ;
+RUN;
+
+
+
+
+*NEED TO DELETE THE MISSING ROW;
+*QUESTION 1 C;
+PROC MEANS DATA = BLOOD NOPRINT;
+VAR RBC;
+CLASS ID ;
+OUTPUT OUT = MAXMINRBC(KEEP = ID  minrbc maxrbc ) MAX = maxrbc MIN = minrbc;
+RUN;
+PROC PRINT DATA = MAXMINRBC;
+RUN;
+
+
+
+*PART 2;
+LIBNAME LIB1 'C:\Users\Owner\Desktop\Sta616\Assignments\Homework_4';
+PROC PRINT DATA = LIB1.file1900;
+RUN;
+*START OF THE QUESTION PART 2 A;
+*PART 2 A;
+DATA PROB1(KEEP = Rank City1900 City1920 City1940 City1960 City1980 City2005 );
+MERGE LIB1.file1900(RENAME=(City=City1900)) 
+LIB1.file1920(RENAME=(City=City1920))
+LIB1.file1940(RENAME=(City=City1940))
+LIB1.file1960(RENAME=(City=City1960))
+LIB1.file1980(RENAME=(City=City1980))
+LIB1.file2005(RENAME=(City=City2005));
+BY Rank;
+LABEL City1900 = "1900 Cities"
+      City1920 = "1920 Cities"
+	  City1940 = "1940 Cities"
+	  City1960 = "1960 Cities"
+	  City1980 = "1980 Cities"
+	  City2005 = "2005 Cities"
+	  ;
+RUN;
+
+*START OF THE QUESTION PART 2 B;
+*PART 2 A;
+ODS PDF FILE="C:\Users\Owner\Desktop\Sta616\Assignments\Homework_4\Top_Cities.pdf";
+TITLE'List of top 20 U.S. cities for 1900, 1920, 1940, 1960, 1980, 2005';
+PROC PRINT DATA = PROB1 label NOOBS;
+RUN;
+QUIT;
+ODS PDF CLOSE;
+
+*START OF PROBLEM 2;
+*PART A;
+
+*START OF THE QUESTION PART 2 A;
+*PART 2 A;
+DATA PROB1(KEEP = Rank City1900 City1920 City1940 City1960 City1980 City2005 );
+MERGE LIB1.file1900(RENAME=(City=City1900)) 
+LIB1.file1920(RENAME=(City=City1920))
+LIB1.file1940(RENAME=(City=City1940))
+LIB1.file1960(RENAME=(City=City1960))
+LIB1.file1980(RENAME=(City=City1980))
+LIB1.file2005(RENAME=(City=City2005));
+BY Rank;
+LABEL City1900 = "1900 Cities"
+      City1920 = "1920 Cities"
+	  City1940 = "1940 Cities"
+	  City1960 = "1960 Cities"
+	  City1980 = "1980 Cities"
+	  City2005 = "2005 Cities"
+	  ;
+RUN;
+
+*START OF THE QUESTION PART 2 B;
+*PART 2 A;
+ODS PDF FILE="C:\Users\Owner\Desktop\Sta616\Assignments\Homework_4\Top_Cities.pdf";
+TITLE'List of top 20 U.S. cities for 1900, 1920, 1940, 1960, 1980, 2005';
+PROC PRINT DATA = PROB1 label NOOBS;
+RUN;
+QUIT;
+ODS PDF CLOSE;
+
+
+*START PROB2;
+*PART 2 A;
+
+
+*To finish with the arrays;
+DATA PROB2(KEEP = City  Rank Population1900 Population1920 Population1940 Population1960 Population1980 Population2005 );
+MERGE LIB1.file1900(RENAME=(Population=Population1900)) 
+LIB1.file1920(RENAME=(Population=Population1920))
+LIB1.file1940(RENAME=(Population=Population1940))
+LIB1.file1960(RENAME=(Population=Population1960))
+LIB1.file1980(RENAME=(Population=Population1980))
+LIB1.file2005(RENAME=(Population=Population2005));
+LABEL Population1900 = "1900 Population"
+      Population1920 = "1920 Population"
+	  Population1940 = "1940 Population"
+	  Population1960 = "1960 Population"
+	  Population1980 = "1980 Population"
+	  Population2005 = "2005 Population"
+	  ;
+ RUN;
+PROC PRINT DATA = PROB2 LABEL;
+RUN;
+
+
+
+*START PROB2;
+*PART 2 ;
+ODS PDF FILE="C:\Users\Owner\Desktop\Sta616\Assignments\Homework_4\Top_Cities.pdf";
+TITLE'List of top 20 U.S. cities for 1900, 1920, 1940, 1960, 1980, 2005';
+PROC PRINT DATA = PROB2 label NOOBS;
+RUN;
+QUIT;
+ODS PDF CLOSE;
+
+*PART 4;
+
+DATA PROB4;
+SET LIB1.file1900
+LIB1.file1920
+LIB1.file1940
+LIB1.file1960
+LIB1.file1980
+LIB1.file2005;
+RUN;
+PROC PRINT DATA = PROB4;
+RUN;
